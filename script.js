@@ -1,6 +1,6 @@
 // Configurações globais
 const CONFIG = {
-    whatsappNumber: '5511959275898',
+    whatsappNumber: '5517981173810',
     whatsappBaseUrl: 'https://wa.me/',
     businessHours: {
         start: 8,
@@ -492,11 +492,8 @@ const Performance = {
 };
 
 // Funções globais chamadas pelos botões
-function consultarWhatsApp() {
-    const modelo = document.getElementById('modelo')?.value || '';
-    const ano = document.getElementById('ano')?.value || '';
-    const peca = dfunction consultarWhatsApp(modelo, ano, peca) {
-    let message = 'Olá, solicito o setor de peças por gentileza...';;
+function consultarWhatsApp(modelo, ano, peca) {
+    const message = 'Olá, solicito o setor de peças por gentileza...';
     
     Utils.openWhatsApp(message);
 }
@@ -543,7 +540,7 @@ function selecionarModelo(modelo) {
         SearchForm.saveFormData();
     }
     
-     const message = 'Olá, solicito o setor de peças por gentileza...';;
+    const message = 'Olá, solicito o setor de peças por gentileza...';
     Utils.openWhatsApp(message);
 }
 
