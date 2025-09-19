@@ -1,6 +1,6 @@
 // Configurações globais
 const CONFIG = {
-    whatsappNumber: '5517981173810',
+    whatsappNumber: '5511959275898',
     whatsappBaseUrl: 'https://wa.me/',
     businessHours: {
         start: 8,
