@@ -424,7 +424,7 @@ const SiteFeatures = {
     },
 
     formatFormMessage: (data) => {
-        let message = 'Olá, solicito o setor de peças por gentileza...';
+        let message = 'Olá, gostaria de solicitar um orçamento...';
         
         Object.entries(data).forEach(([key, value]) => {
             if (value) {
