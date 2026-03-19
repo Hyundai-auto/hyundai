@@ -493,7 +493,7 @@ const Performance = {
 
 // Funções globais chamadas pelos botões
 function consultarWhatsApp(modelo, ano, peca) {
-    const message = 'Olá, solicito o setor de peças por gentileza...';
+    const message = 'Olá, gostaria de solicitar um orçamento...';
     
     Utils.openWhatsApp(message);
 }
@@ -508,18 +508,18 @@ function consultarCategoria(categoria) {
         'suspensao': 'Suspensão (Amortecedores, Molas, Buchas)'
     };
     
-    const message = 'Olá, solicito o setor de peças por gentileza...';
+    const message = 'Olá, gostaria de solicitar um orçamento...';
     
     Utils.openWhatsApp(message);
 }
 
 function solicitarOrcamento() {
-    const message = 'Olá, solicito o setor de peças por gentileza...';
+    const message = 'Olá, gostaria de solicitar um orçamento...';
     Utils.openWhatsApp(message);
 }
 
 function falarEspecialista() {
-    const message = 'Olá, solicito o setor de peças por gentileza...';
+    const message = 'Olá, gostaria de solicitar um orçamento...';
     Utils.openWhatsApp(message);
 }
 
@@ -540,12 +540,12 @@ function selecionarModelo(modelo) {
         SearchForm.saveFormData();
     }
     
-    const message = 'Olá, solicito o setor de peças por gentileza...';
+    const message = 'Olá, gostaria de solicitar um orçamento...';
     Utils.openWhatsApp(message);
 }
 
 function abrirWhatsApp() {
-    const message = 'Olá, solicito o setor de peças por gentileza...';
+    const message = 'Olá, gostaria de solicitar um orçamento...';
     Utils.openWhatsApp(message);
 }
 
