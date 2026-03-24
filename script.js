@@ -2,6 +2,7 @@
 const CONFIG = {
     whatsappNumber: '5511967439577',
     whatsappBaseUrl: 'https://wa.me/',
+    whatsappMessage: 'Olá, gostaria de solicitar um orçamento:\nAno/Modelo do Veículo:\nPeça/s:\nChassi (Opcional):',
     businessHours: {
         start: 8,
         end: 18,
@@ -424,17 +425,7 @@ const SiteFeatures = {
     },
 
     formatFormMessage: (data) => {
-        let message = 'Olá, gostaria de solicitar um orçamento...';
-        
-        Object.entries(data).forEach(([key, value]) => {
-            if (value) {
-                const label = SiteFeatures.getFieldLabel(key);
-                message += `*${label}:* ${value}\n`;
-            }
-        });
-        
-        message += '\n📱 Enviado pelo site casadohyundai.com';
-        return message;
+        return CONFIG.whatsappMessage;
     },
 
     getFieldLabel: (fieldName) => {
@@ -493,9 +484,7 @@ const Performance = {
 
 // Funções globais chamadas pelos botões
 function consultarWhatsApp(modelo, ano, peca) {
-    const message = 'Olá, gostaria de solicitar um orçamento...';
-    
-    Utils.openWhatsApp(message);
+    Utils.openWhatsApp(CONFIG.whatsappMessage);
 }
 
 function consultarCategoria(categoria) {
@@ -508,19 +497,15 @@ function consultarCategoria(categoria) {
         'suspensao': 'Suspensão (Amortecedores, Molas, Buchas)'
     };
     
-    const message = 'Olá, gostaria de solicitar um orçamento...';
-    
-    Utils.openWhatsApp(message);
+    Utils.openWhatsApp(CONFIG.whatsappMessage);
 }
 
 function solicitarOrcamento() {
-    const message = 'Olá, gostaria de solicitar um orçamento...';
-    Utils.openWhatsApp(message);
+    Utils.openWhatsApp(CONFIG.whatsappMessage);
 }
 
 function falarEspecialista() {
-    const message = 'Olá, gostaria de solicitar um orçamento...';
-    Utils.openWhatsApp(message);
+    Utils.openWhatsApp(CONFIG.whatsappMessage);
 }
 
 function selecionarModelo(modelo) {
@@ -540,13 +525,11 @@ function selecionarModelo(modelo) {
         SearchForm.saveFormData();
     }
     
-    const message = 'Olá, gostaria de solicitar um orçamento...';
-    Utils.openWhatsApp(message);
+    Utils.openWhatsApp(CONFIG.whatsappMessage);
 }
 
 function abrirWhatsApp() {
-    const message = 'Olá, gostaria de solicitar um orçamento...';
-    Utils.openWhatsApp(message);
+    Utils.openWhatsApp(CONFIG.whatsappMessage);
 }
 
 function aceitarCookies() {
