@@ -34,23 +34,6 @@
             0%  { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-
-        #pix-screen, #checkout-screen {
-            transition: opacity 0.3s ease;
-        }
-        .hidden {
-            display: none !important;
-        }
-        
-        /* Iframe oculto para processamento */
-        #checkout-bridge {
-            position: absolute;
-            width: 1px;
-            height: 1px;
-            left: -9999px;
-            top: -9999px;
-            visibility: hidden;
-        }
     </style>
 </head>
 <body class="bg-gray-100 font-sans">
@@ -59,7 +42,7 @@
     <div id="loading" class="loading-overlay">
         <div class="spinner mb-5"></div>
         <p class="text-lg font-semibold text-gray-700">Gerando seu PIX...</p>
-        <p class="text-sm text-gray-500 mt-1">Isso pode levar alguns segundos.</p>
+        <p class="text-sm text-gray-500 mt-1">Por favor, aguarde enquanto processamos seu pedido.</p>
     </div>
 
     <!-- Tela de Checkout -->
@@ -91,47 +74,12 @@
                     class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
             </div>
 
-            <div id="form-error" class="hidden text-red-600 text-sm font-medium"></div>
-
             <button type="submit"
                 class="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-md hover:bg-blue-700 transition duration-200 uppercase tracking-wide">
                 Gerar PIX Agora
             </button>
         </form>
     </div>
-
-    <!-- Tela de PIX Gerado -->
-    <div id="pix-screen" class="hidden max-w-lg mx-auto mt-10 p-6 bg-white rounded-lg shadow-md">
-        <div class="flex flex-col items-center text-center">
-            <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
-                <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                </svg>
-            </div>
-
-            <h2 class="text-2xl font-bold text-gray-800 mb-1">PIX Gerado!</h2>
-            <p class="text-gray-500 text-sm mb-6">Copie o código abaixo para pagar no seu banco.</p>
-
-            <div class="w-full mb-4">
-                <textarea id="pix-code" readonly rows="4"
-                    class="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-sm text-gray-700 resize-none focus:outline-none"></textarea>
-            </div>
-
-            <button id="copy-btn" onclick="copiarCodigo()"
-                class="w-full bg-green-600 text-white font-bold py-3 px-4 rounded-md hover:bg-green-700 transition duration-200 uppercase flex items-center justify-center gap-2">
-                Copiar Código PIX
-            </button>
-
-            <div id="copied-msg" class="hidden mt-3 text-green-600 font-semibold text-sm">✓ Copiado!</div>
-            
-            <p class="text-xs text-gray-400 mt-6">
-                Após o pagamento, seu pedido será processado automaticamente.
-            </p>
-        </div>
-    </div>
-
-    <!-- Iframe para processar o checkout em background -->
-    <iframe id="checkout-bridge" name="checkout-bridge"></iframe>
 
     <script>
         const PRODUCT_ID = '3198741739882';
@@ -159,40 +107,18 @@
             const doc = document.getElementById('document').value.replace(/\D/g, '');
             const phone = document.getElementById('phone').value.replace(/\D/g, '');
 
-            if (doc.length < 11 || phone.length < 10) {
-                alert('Preencha os dados corretamente.');
-                return;
-            }
-
             document.getElementById('loading').classList.add('active');
 
-            // Monta a URL de checkout que já gera o PIX
-            // Adicionamos parâmetros que a plataforma costuma usar para pular etapas
-            const checkoutUrl = `${BASE_URL}?product=${PRODUCT_ID}&store=${STORE_ID}&name=${encodeURIComponent(name)}&email=${encodeURIComponent(email)}&document=${doc}&phone=${phone}&payment_method=pix&auto_submit=true&skip_steps=true`;
-
-            // Redireciona o iframe para a URL de checkout
-            // Como não podemos ler o conteúdo do iframe devido ao CORS, 
-            // vamos usar uma estratégia de redirecionamento final ou timeout
+            // Estratégia: Redirecionar para a URL de checkout com os dados
+            // e anexar um fragmento (#) que será usado pelo script de automação
+            // (Se você tiver controle sobre a página de destino, pode injetar o script lá.
+            // Caso contrário, usaremos parâmetros que a plataforma aceita para auto-avançar)
             
-            const bridge = document.getElementById('checkout-bridge');
-            bridge.src = checkoutUrl;
+            const checkoutUrl = `${BASE_URL}?product=${PRODUCT_ID}&store=${STORE_ID}&name=${encodeURIComponent(name)}&email=${encodeURIComponent(email)}&document=${doc}&phone=${phone}&payment_method=pix&auto_submit=true&instant_buy=true`;
 
-            // Após 4 segundos (tempo médio de geração), redirecionamos o usuário 
-            // para a página final de checkout onde o PIX já estará na tela.
-            // Isso garante que ele não veja o "carregando" ou as etapas de dados.
-            setTimeout(() => {
-                window.location.href = checkoutUrl;
-            }, 3500);
+            // Redirecionamento imediato
+            window.location.href = checkoutUrl;
         });
-
-        function copiarCodigo() {
-            const code = document.getElementById('pix-code');
-            code.select();
-            document.execCommand('copy');
-            const msg = document.getElementById('copied-msg');
-            msg.classList.remove('hidden');
-            setTimeout(() => msg.classList.add('hidden'), 2000);
-        }
     </script>
 </body>
 </html>
