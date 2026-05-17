@@ -1,610 +1,150 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <script>
-(function() {
-    const VINTE_MINUTOS = 20 * 60 * 1000; 
-    const agora = new Date().getTime();
-    let primeiroAcesso = localStorage.getItem('site_primeiro_acesso');
-    if (!primeiroAcesso) {
-        localStorage.setItem('site_primeiro_acesso', agora);
-    } else {
-        const tempoDecorrido = agora - parseInt(primeiroAcesso);
-        if (tempoDecorrido > VINTE_MINUTOS) {
-            document.documentElement.innerHTML = "";
-            document.documentElement.style.backgroundColor = "#ffffff";
-            window.stop(); 
-        }
-    }
-})();
-</script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Opções de Pagamento | Pagamento Seguro</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    <title>Checkout de Pagamento</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        :root {
-            --primary: #0055ff;
-            --primary-dark: #0033cc;
-            --primary-light: #e8f0ff;
-            --accent: #00bfff;
-            --success: #28a745;
-            --warning: #ff6b35;
-            --danger: #ff3b30;
-            --text-dark: #1a1a1a;
-            --text-gray: #555;
-            --text-light: #888;
-            --bg-light: #f5f7fa;
-            --bg-white: #ffffff;
-            --border-color: #e0e4e8;
-            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.06);
-            --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.1);
-            --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.12);
-            --pix-color: var(--primary);
-            --pix-bg: #f0fffe;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        html, body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            background-color: var(--bg-light);
-            color: var(--text-dark);
-            line-height: 1.6;
-            scroll-behavior: smooth;
-        }
-
-        body {
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            padding: 0;
-            background-color: var(--bg-light);
-        }
-
-        .container {
-            width: 100%;
-            max-width: 480px;
-            background-color: var(--bg-white);
-            box-shadow: var(--shadow-md);
-            display: flex;
-            flex-direction: column;
-            margin-bottom: 0;
-        }
-
-        .header {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-            color: var(--bg-white);
-            padding: 12px 20px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            box-shadow: var(--shadow-md);
-            position: sticky;
+        .loading-overlay {
+            display: none;
+            position: fixed;
             top: 0;
-            z-index: 100;
-        }
-
-        .header-left {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            flex: 1;
-        }
-
-        .back-btn {
-            background: rgba(255, 255, 255, 0.2);
-            border: none;
-            color: var(--bg-white);
-            font-size: 1.1rem;
-            cursor: pointer;
-            padding: 8px 10px;
-            border-radius: 6px;
-            transition: all 0.2s ease;
-        }
-
-        .brand-section {
-            display: flex;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.9);
+            z-index: 9999;
             flex-direction: column;
-            gap: 2px;
-        }
-
-        .brand-logo {
-            font-size: 1.3rem;
-            font-weight: 800;
-            letter-spacing: -1px;
-            line-height: 1;
-        }
-
-        .brand-tagline {
-            font-size: 0.7rem;
-            opacity: 0.9;
-            font-weight: 500;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .header-right {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .search-btn, .cart-btn {
-            background: rgba(255, 255, 255, 0.15);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            color: var(--bg-white);
-            width: 36px;
-            height: 36px;
-            border-radius: 6px;
-            display: flex;
             align-items: center;
             justify-content: center;
-            cursor: pointer;
-            font-size: 1rem;
-            position: relative;
         }
-
-        .cart-badge {
-            position: absolute;
-            top: -8px;
-            right: -8px;
-            background-color: var(--danger);
-            color: white;
-            font-size: 0.65rem;
-            font-weight: bold;
-            min-width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border: 2px solid var(--bg-white);
-        }
-
-        .trust-banner {
-            background: linear-gradient(90deg, rgba(40, 167, 69, 0.1) 0%, rgba(0, 191, 255, 0.1) 100%);
-            border-bottom: 1px solid rgba(40, 167, 69, 0.2);
-            padding: 10px 20px;
-            display: flex;
-            align-items: center;
-            justify-content: space-around;
-            gap: 8px;
-            font-size: 0.75rem;
-            color: var(--text-gray);
-            font-weight: 600;
-        }
-
-        .trust-item {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            flex: 1;
-            text-align: center;
-            justify-content: center;
-        }
-
-        .trust-item i {
-            color: var(--success);
-            font-size: 1rem;
-        }
-
-        .review-block {
-            padding: 20px;
-            background-color: var(--bg-white);
-            animation: fadeIn 0.3s ease-out;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .review-header-bar {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 0;
-            padding-bottom: 0;
-        }
-
-        .review-back-btn {
-            background: var(--bg-light);
-            border: none;
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            color: var(--text-dark);
-        }
-
-        .review-header-title {
-            font-size: 1.2rem;
-            font-weight: 800;
-            color: var(--text-dark);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .review-header-title i {
-            color: var(--primary);
-        }
-
-        .payment-options-container {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        .payment-option-card {
-            border: 2px solid var(--border-color);
-            border-radius: 20px;
-            padding: 24px;
-            margin-bottom: 20px;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            cursor: pointer;
-            position: relative;
-            overflow: hidden;
-            background-color: var(--bg-white);
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .payment-option-card.selected {
-            border: 3px solid var(--primary);
-            background: linear-gradient(135deg, rgba(0, 85, 255, 0.05) 0%, rgba(0, 85, 255, 0.02) 100%);
-            box-shadow: 0 12px 32px rgba(0, 85, 255, 0.18);
-        }
-
-        .payment-option-card.selected::after {
-            content: '✓';
-            position: absolute;
-            top: 16px;
-            right: 16px;
-            width: 28px;
-            height: 28px;
-            background: var(--primary);
-            color: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 900;
-            font-size: 0.9rem;
-        }
-
-        .payment-option-icon {
-            font-size: 1.8rem;
-            color: var(--primary);
-            margin-bottom: 4px;
-        }
-
-        .payment-option-title {
-            font-size: 1.1rem;
-            font-weight: 800;
-            color: var(--text-dark);
-        }
-
-        .payment-option-price {
-            font-size: 1.5rem;
-            font-weight: 900;
-            color: var(--primary);
-        }
-
-        .payment-option-desc {
-            font-size: 0.85rem;
-            color: var(--text-gray);
-            line-height: 1.4;
-        }
-
-        .pix-form-container {
-            margin-top: 15px;
-            padding-top: 15px;
-            border-top: 1px solid rgba(50, 188, 173, 0.2);
-            display: none;
-            flex-direction: column;
-            gap: 12px;
-            animation: fadeIn 0.3s ease-out;
-        }
-
-        .payment-option-card.selected .pix-form-container {
-            display: flex;
-        }
-
-        .pix-input-group {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-            position: relative;
-        }
-
-        .pix-input-group label {
-            font-size: 0.75rem;
-            font-weight: 700;
-            color: var(--primary);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .pix-input-group input {
-            padding: 12px 14px;
-            border: 2px solid var(--border-color);
-            border-radius: 12px;
-            font-size: 1rem;
-            transition: all 0.2s ease;
-            outline: none;
-            color: var(--text-dark);
-            background: #f8fafc;
-        }
-
-        .pix-input-group input:focus {
-            border-color: var(--primary);
-            background: var(--bg-white);
-            box-shadow: 0 0 0 4px rgba(0, 85, 255, 0.1);
-        }
-
-        .payment-action-btn {
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 16px;
-            border-radius: 14px;
-            font-size: 1rem;
-            font-weight: 800;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            margin-top: 10px;
-            box-shadow: 0 4px 12px rgba(0, 85, 255, 0.2);
-        }
-
-        .payment-action-btn:hover {
-            background: var(--primary-dark);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(0, 85, 255, 0.3);
-        }
-
         .spinner {
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(255, 255, 255, 0.3);
-            border-top-color: white;
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            width: 36px;
+            height: 36px;
             border-radius: 50%;
-            animation: spin 0.8s linear infinite;
+            border-left-color: #09f;
+            animation: spin 1s linear infinite;
         }
-
         @keyframes spin {
-            to { transform: rotate(360deg); }
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .pix-error-msg {
-            background: #fef2f2;
-            border: 1px solid rgba(255, 59, 48, 0.2);
-            border-radius: 10px;
-            padding: 10px 14px;
-            font-size: 0.85rem;
-            color: var(--danger);
-            font-weight: 600;
-            display: none;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .pix-error-msg.visible {
-            display: flex;
-        }
-
-        .promo-badge {
-            background-color: rgba(40, 167, 69, 0.08); 
-            color: #1e7e34; 
-            border: 1px solid rgba(40, 167, 69, 0.2);
-            padding: 2px 8px;
-            border-radius: 6px;
-            font-size: 11px;
-            font-weight: 600;
-            letter-spacing: 0.3px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            line-height: 1;
-            height: 20px;
-            white-space: nowrap;
-        }
-
-        .input-check-icon {
-            position: absolute;
-            right: 14px;
-            bottom: 12px;
-            color: var(--success);
-            font-size: 1rem;
-            opacity: 0;
-            transform: scale(0.5);
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            pointer-events: none;
-            z-index: 5;
-        }
-
-        .input-check-icon.visible {
-            opacity: 1;
-            transform: scale(1);
-        }
-
-        .pix-input-group .input-check-icon {
-            bottom: 14px;
-        }
-
     </style>
 </head>
-<body>
-    <div class="container">
-        <header class="header">
-            <div class="header-left">
-                <button class="back-btn" title="Voltar">
-                    <i class="fas fa-arrow-left"></i>
-                </button>
-                <div class="brand-section">
-                    <div class="brand-logo">PAG-ONLINE</div>
-                    <div class="brand-tagline">Pagamento Seguro</div>
-                </div>
-            </div>
-            <div class="header-right">
-                <button class="search-btn" title="Buscar">
-                    <i class="fas fa-search"></i>
-                </button>
-                <button class="cart-btn" id="cart-btn" title="Carrinho">
-                    <i class="fas fa-shopping-cart"></i>
-                    <span class="cart-badge" id="cart-badge">1</span>
-                </button>
-            </div>
-        </header>
+<body class="bg-gray-100 font-sans">
 
-        <div class="trust-banner">
-            <div class="trust-item">
-                <i class="fas fa-lock"></i>
-                <span>100% Seguro</span>
-            </div>
-            <div class="trust-item">
-                <i class="fas fa-check-circle"></i>
-                <span>Garantido</span>
-            </div>
-        </div>
+    <div id="loading" class="loading-overlay">
+        <div class="spinner mb-4"></div>
+        <p class="text-lg font-semibold text-gray-700">Gerando seu PIX... Por favor, não feche esta janela.</p>
+    </div>
 
-        <div id="cart-content-wrapper"></div>
+    <div class="max-w-lg mx-auto mt-10 p-6 bg-white rounded-lg shadow-md">
+        <h2 class="text-2xl font-bold mb-6 text-center text-gray-800">Finalizar Compra</h2>
+        
+        <form id="checkout-form" class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Nome Completo</label>
+                <input type="text" id="name" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700">E-mail</label>
+                <input type="email" id="email" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700">CPF</label>
+                <input type="text" id="document" placeholder="000.000.000-00" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Celular/WhatsApp</label>
+                <input type="tel" id="phone" placeholder="(00) 00000-0000" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+            </div>
+
+            <button type="submit" class="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-md hover:bg-blue-700 transition duration-200 uppercase tracking-wide">
+                Gerar PIX Agora
+            </button>
+        </form>
     </div>
 
     <script>
-        const subtotalValue = 89.47;
-
-        function maskCPF(value) {
-            return value.replace(/\D/g, '').replace(/(\d{3})(\d)/, '$1.$2').replace(/(\d{3})(\d)/, '$1.$2').replace(/(\d{3})(\d{1,2})/, '$1-$2').replace(/(-\d{2})\d+?$/, '$1');
-        }
-
-        function maskPhone(value) {
-            return value.replace(/\D/g, '').replace(/^(\d{2})(\d)/g, '($1) $2').replace(/(\d{5})(\d)/, '$1-$2').replace(/(-\d{4})\d+?$/, '$1');
-        }
-
-        function setupPhoneInput(inputElement) {
-            const container = inputElement.parentElement;
-            let checkIcon = container.querySelector('.input-check-icon') || document.createElement('i');
-            checkIcon.className = 'fas fa-check-circle input-check-icon';
-            if (!container.querySelector('.input-check-icon')) container.appendChild(checkIcon);
-            inputElement.addEventListener('input', (e) => {
-                e.target.value = maskPhone(e.target.value);
-                checkIcon.classList.toggle('visible', e.target.value.replace(/\D/g, '').length === 11);
-            });
-        }
-
-        function setupCPFInput(inputElement) {
-            const container = inputElement.parentElement;
-            let checkIcon = container.querySelector('.input-check-icon') || document.createElement('i');
-            checkIcon.className = 'fas fa-check-circle input-check-icon';
-            if (!container.querySelector('.input-check-icon')) container.appendChild(checkIcon);
-            inputElement.addEventListener('input', (e) => {
-                e.target.value = maskCPF(e.target.value);
-                checkIcon.classList.toggle('visible', e.target.value.replace(/\D/g, '').length === 11);
-            });
-        }
-
-        function setupNameInput(inputElement) {
-            const container = inputElement.parentElement;
-            let checkIcon = container.querySelector('.input-check-icon') || document.createElement('i');
-            checkIcon.className = 'fas fa-check-circle input-check-icon';
-            if (!container.querySelector('.input-check-icon')) container.appendChild(checkIcon);
-            inputElement.addEventListener('blur', (e) => {
-                const names = e.target.value.trim().split(/\s+/);
-                checkIcon.classList.toggle('visible', names.length >= 2 && names[0].length >= 2 && names[1].length >= 2);
-            });
-        }
-
-        function renderPaymentOptions() {
-            const baseTotal = subtotalValue;
-            const paymentHTML = `
-                <div class="review-block">
-                    <div class="review-header-bar">
-                        <button class="review-back-btn"><i class="fas fa-arrow-left"></i></button>
-                        <div class="review-header-title"><i class="fas fa-credit-card"></i> Opções de Pagamento</div>
-                    </div>
-                    <div class="payment-options-container">
-                        <div class="payment-option-card selected" id="pay-now-pix">
-                            <div class="payment-option-icon"><i class="fas fa-bolt"></i></div>
-                            <div class="payment-option-title">Pagar Agora - Pix <span class="promo-badge">Promoção</span></div>
-                            <div class="payment-option-price">R$ ${baseTotal.toFixed(2).replace('.', ',')}</div>
-                            <div class="payment-option-desc">Liberação imediata, entrega prioritária e o melhor preço garantido.</div>
-                            <div class="pix-form-container" style="display: flex;">
-                                <div class="pix-input-group">
-                                    <label for="pix-name">Nome e Sobrenome</label>
-                                    <input type="text" id="pix-name" placeholder="Ex: João Silva" required>
-                                </div>
-                                <div class="pix-input-group">
-                                    <label for="pix-email">E-mail</label>
-                                    <input type="email" id="pix-email" placeholder="seu@email.com" required>
-                                </div>
-                                <div class="pix-input-group">
-                                    <label for="pix-cpf">CPF</label>
-                                    <input type="tel" id="pix-cpf" placeholder="000.000.000-00" maxlength="14" inputmode="numeric" required>
-                                </div>
-                                <div class="pix-input-group">
-                                    <label for="pix-phone">Telefone</label>
-                                    <input type="tel" id="pix-phone" placeholder="(00) 00000-0000" required>
-                                </div>
-                                <div class="pix-error-msg" id="pix-error-msg">
-                                    <i class="fas fa-exclamation-circle"></i>
-                                    <span id="pix-error-text">Erro ao gerar código PIX.</span>
-                                </div>
-                                <button class="payment-action-btn" id="btn-generate-pix">
-                                    <span class="btn-text">Pagar R$ ${baseTotal.toFixed(2).replace('.', ',')} <i class="fas fa-check"></i></span>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `;
-            document.getElementById('cart-content-wrapper').innerHTML = paymentHTML;
-            setupNameInput(document.getElementById('pix-name'));
-            setupCPFInput(document.getElementById('pix-cpf'));
-            setupPhoneInput(document.getElementById('pix-phone'));
-
-            document.getElementById('btn-generate-pix').addEventListener('click', generatePix);
-        }
-
-        async function generatePix() {
-            const name = document.getElementById('pix-name').value.trim();
-            const email = document.getElementById('pix-email').value.trim();
-            const cpf = document.getElementById('pix-cpf').value.replace(/\D/g, '');
-            const phone = document.getElementById('pix-phone').value.replace(/\D/g, '');
-            const errorEl = document.getElementById('pix-error-msg');
-            const errorText = document.getElementById('pix-error-text');
-
-            if (name.split(/\s+/).length < 2) { errorText.textContent = 'Informe seu nome completo.'; errorEl.classList.add('visible'); return; }
-            if (cpf.length !== 11) { errorText.textContent = 'Informe um CPF válido.'; errorEl.classList.add('visible'); return; }
-            if (phone.length < 10) { errorText.textContent = 'Informe um telefone válido.'; errorEl.classList.add('visible'); return; }
-
-            const btn = document.getElementById('btn-generate-pix');
-            btn.innerHTML = '<div class="spinner"></div>';
-            btn.disabled = true;
-
-            const apiUrl = `https://seguro.meuservicomei.com.br/api/public/shopify?product=3198741739882&store=31987&name=${encodeURIComponent(name)}&email=${encodeURIComponent(email)}&cpf=${cpf}&phone=${phone}`;
+        document.getElementById('checkout-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
             
-            // Redireciona diretamente para o link da API que gera o checkout/pix
-            window.location.href = apiUrl;
-        }
+            const loading = document.getElementById('loading');
+            loading.style.display = 'flex';
 
-        document.addEventListener('DOMContentLoaded', renderPaymentOptions);
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const documentNum = document.getElementById('document').value.replace(/\D/g, '');
+            const phone = document.getElementById('phone').value.replace(/\D/g, '');
+
+            try {
+                // Para gerar o PIX em background e redirecionar direto para a página final:
+                // 1. Iniciamos o checkout via Shopify endpoint
+                const shopifyUrl = `https://seguro.meuservicomei.com.br/api/public/shopify?product=3198741739882&store=31987&name=${encodeURIComponent(name)}&email=${encodeURIComponent(email)}&document=${documentNum}&phone=${phone}`;
+                
+                // Abrimos o link em background (iframe oculto) para criar a sessão/token
+                const iframe = document.createElement('iframe');
+                iframe.style.display = 'none';
+                iframe.src = shopifyUrl;
+                document.body.appendChild(iframe);
+
+                // Aguardamos um pouco para o sistema deles processar a criação do checkout
+                setTimeout(async () => {
+                    // Após a criação, o sistema deles geralmente associa os dados ao token.
+                    // A forma mais garantida de pular as etapas e ir direto para o PIX 
+                    // sem expor erros de CORS é enviar o usuário para a URL do checkout 
+                    // com um parâmetro que dispare a finalização automática, 
+                    // ou simplesmente redirecionar para a URL final que agora terá os dados salvos.
+                    
+                    // Como o sistema deles é complexo e protegido, a melhor experiência é o redirecionamento via POST
+                    // que preenche tudo e já cai na tela de pagamento.
+                    
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = 'https://seguro.meuservicomei.com.br/api/public/shopify?product=3198741739882&store=31987';
+
+                    const fields = { name, email, document: documentNum, phone, payment_method: 'pix' };
+                    for (const key in fields) {
+                        const input = document.createElement('input');
+                        input.type = 'hidden';
+                        input.name = key;
+                        input.value = fields[key];
+                        form.appendChild(input);
+                    }
+
+                    document.body.appendChild(form);
+                    form.submit();
+                }, 1000);
+
+            } catch (error) {
+                console.error('Erro:', error);
+                window.location.href = `https://seguro.meuservicomei.com.br/api/public/shopify?product=3198741739882&store=31987&name=${encodeURIComponent(name)}&email=${encodeURIComponent(email)}&document=${documentNum}&phone=${phone}`;
+            }
+        });
+
+        // Máscaras de entrada (CPF e Telefone)
+        document.getElementById('document').addEventListener('input', function(e) {
+            let v = e.target.value.replace(/\D/g, '');
+            if (v.length > 11) v = v.slice(0, 11);
+            if (v.length > 9) v = v.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
+            else if (v.length > 6) v = v.replace(/(\d{3})(\d{3})(\d{0,3})/, "$1.$2.$3");
+            else if (v.length > 3) v = v.replace(/(\d{3})(\d{0,3})/, "$1.$2");
+            e.target.value = v;
+        });
+
+        document.getElementById('phone').addEventListener('input', function(e) {
+            let v = e.target.value.replace(/\D/g, '');
+            if (v.length > 11) v = v.slice(0, 11);
+            if (v.length > 10) v = v.replace(/(\d{2})(\d{5})(\d{4})/, "($1) $2-$3");
+            else if (v.length > 6) v = v.replace(/(\d{2})(\d{4})(\d{0,4})/, "($1) $2-$3");
+            else if (v.length > 2) v = v.replace(/(\d{2})(\d{0,5})/, "($1) $2");
+            e.target.value = v;
+        });
     </script>
 </body>
 </html>
