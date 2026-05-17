@@ -13,89 +13,196 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(255, 255, 255, 0.9);
+            background: rgba(255, 255, 255, 0.95);
             z-index: 9999;
             flex-direction: column;
             align-items: center;
             justify-content: center;
         }
+        .loading-overlay.active {
+            display: flex;
+        }
         .spinner {
             border: 4px solid rgba(0, 0, 0, 0.1);
-            width: 36px;
-            height: 36px;
+            width: 48px;
+            height: 48px;
             border-radius: 50%;
-            border-left-color: #09f;
+            border-left-color: #22c55e;
             animation: spin 1s linear infinite;
         }
         @keyframes spin {
-            0% { transform: rotate(0deg); }
+            0%  { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
+        }
+
+        /* Tela de PIX gerado inline */
+        #pix-screen {
+            display: none;
+        }
+        #pix-screen.active {
+            display: block;
+        }
+        #checkout-screen.hidden {
+            display: none;
+        }
+
+        .copy-btn {
+            transition: background-color 0.2s;
+        }
+        .copy-btn:active {
+            transform: scale(0.97);
         }
     </style>
 </head>
 <body class="bg-gray-100 font-sans">
 
+    <!-- Overlay de carregamento -->
     <div id="loading" class="loading-overlay">
-        <div class="spinner mb-4"></div>
-        <p class="text-lg font-semibold text-gray-700">Gerando seu PIX... Por favor, não feche esta janela.</p>
+        <div class="spinner mb-5"></div>
+        <p class="text-lg font-semibold text-gray-700">Gerando seu PIX...</p>
+        <p class="text-sm text-gray-500 mt-1">Por favor, não feche esta janela.</p>
     </div>
 
-    <div class="max-w-lg mx-auto mt-10 p-6 bg-white rounded-lg shadow-md">
+    <!-- Tela de Checkout (formulário) -->
+    <div id="checkout-screen" class="max-w-lg mx-auto mt-10 p-6 bg-white rounded-lg shadow-md">
         <h2 class="text-2xl font-bold mb-6 text-center text-gray-800">Finalizar Compra</h2>
-        
-        <form id="checkout-form" class="space-y-4">
+
+        <form id="checkout-form" class="space-y-4" novalidate>
             <div>
                 <label class="block text-sm font-medium text-gray-700">Nome Completo</label>
-                <input type="text" id="name" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
-            </div>
-            
-            <div>
-                <label class="block text-sm font-medium text-gray-700">E-mail</label>
-                <input type="email" id="email" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
-            </div>
-            
-            <div>
-                <label class="block text-sm font-medium text-gray-700">CPF</label>
-                <input type="text" id="document" placeholder="000.000.000-00" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
-            </div>
-            
-            <div>
-                <label class="block text-sm font-medium text-gray-700">Celular/WhatsApp</label>
-                <input type="tel" id="phone" placeholder="(00) 00000-0000" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                <input type="text" id="name" required
+                    class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
             </div>
 
-            <button type="submit" class="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-md hover:bg-blue-700 transition duration-200 uppercase tracking-wide">
+            <div>
+                <label class="block text-sm font-medium text-gray-700">E-mail</label>
+                <input type="email" id="email" required
+                    class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700">CPF</label>
+                <input type="text" id="document" placeholder="000.000.000-00" required
+                    class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Celular/WhatsApp</label>
+                <input type="tel" id="phone" placeholder="(00) 00000-0000" required
+                    class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+            </div>
+
+            <div id="form-error" class="hidden text-red-600 text-sm font-medium"></div>
+
+            <button type="submit"
+                class="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-md hover:bg-blue-700 transition duration-200 uppercase tracking-wide">
                 Gerar PIX Agora
             </button>
         </form>
     </div>
 
+    <!-- Tela de PIX gerado (exibida inline após geração) -->
+    <div id="pix-screen" class="max-w-lg mx-auto mt-10 p-6 bg-white rounded-lg shadow-md">
+        <div class="flex flex-col items-center text-center">
+            <!-- Ícone de sucesso -->
+            <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
+                <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                </svg>
+            </div>
+
+            <h2 class="text-2xl font-bold text-gray-800 mb-1">PIX Gerado com Sucesso!</h2>
+            <p class="text-gray-500 text-sm mb-6">Copie o código abaixo e cole no seu aplicativo de banco para realizar o pagamento.</p>
+
+            <!-- QR Code (se disponível) -->
+            <div id="qrcode-container" class="hidden mb-5">
+                <img id="qrcode-img" src="" alt="QR Code PIX" class="w-48 h-48 mx-auto rounded-lg border border-gray-200 shadow-sm">
+                <p class="text-xs text-gray-400 mt-2">Ou escaneie o QR Code acima</p>
+            </div>
+
+            <!-- Código PIX Copia e Cola -->
+            <div class="w-full mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2 text-left">Código PIX (Copia e Cola)</label>
+                <div class="relative">
+                    <textarea id="pix-code" readonly rows="4"
+                        class="w-full px-3 py-2 pr-10 border border-gray-300 rounded-md bg-gray-50 text-sm text-gray-700 resize-none focus:outline-none focus:ring-2 focus:ring-green-400"></textarea>
+                </div>
+            </div>
+
+            <!-- Botão Copiar -->
+            <button id="copy-btn" onclick="copiarCodigo()"
+                class="copy-btn w-full bg-green-600 text-white font-bold py-3 px-4 rounded-md hover:bg-green-700 transition duration-200 uppercase tracking-wide flex items-center justify-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                </svg>
+                Copiar Código PIX
+            </button>
+
+            <!-- Mensagem de copiado -->
+            <div id="copied-msg" class="hidden mt-3 text-green-600 font-semibold text-sm">
+                ✓ Código copiado com sucesso!
+            </div>
+
+            <!-- Informações do pagamento -->
+            <div id="payment-info" class="w-full mt-6 p-4 bg-gray-50 rounded-lg border border-gray-200 text-left text-sm text-gray-600 space-y-1">
+            </div>
+
+            <!-- Aviso de validade -->
+            <p class="text-xs text-gray-400 mt-4">
+                O código PIX tem validade limitada. Realize o pagamento o quanto antes.
+            </p>
+        </div>
+    </div>
+
     <script>
-        document.getElementById('checkout-form').addEventListener('submit', async function(e) {
+        const SHOPIFY_URL = 'https://seguro.meuservicomei.com.br/api/public/shopify?product=3198741739882&store=31987';
+
+        // ─── Máscaras de entrada ───────────────────────────────────────────────
+        document.getElementById('document').addEventListener('input', function (e) {
+            let v = e.target.value.replace(/\D/g, '');
+            if (v.length > 11) v = v.slice(0, 11);
+            if (v.length > 9)      v = v.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+            else if (v.length > 6) v = v.replace(/(\d{3})(\d{3})(\d{0,3})/, '$1.$2.$3');
+            else if (v.length > 3) v = v.replace(/(\d{3})(\d{0,3})/, '$1.$2');
+            e.target.value = v;
+        });
+
+        document.getElementById('phone').addEventListener('input', function (e) {
+            let v = e.target.value.replace(/\D/g, '');
+            if (v.length > 11) v = v.slice(0, 11);
+            if (v.length > 10)     v = v.replace(/(\d{2})(\d{5})(\d{4})/, '($1) $2-$3');
+            else if (v.length > 6) v = v.replace(/(\d{2})(\d{4})(\d{0,4})/, '($1) $2-$3');
+            else if (v.length > 2) v = v.replace(/(\d{2})(\d{0,5})/, '($1) $2');
+            e.target.value = v;
+        });
+
+        // ─── Submissão do formulário ───────────────────────────────────────────
+        document.getElementById('checkout-form').addEventListener('submit', async function (e) {
             e.preventDefault();
-            
-            const loading = document.getElementById('loading');
-            loading.style.display = 'flex';
 
-            const name = document.getElementById('name').value;
-            const email = document.getElementById('email').value;
+            const name        = document.getElementById('name').value.trim();
+            const email       = document.getElementById('email').value.trim();
             const documentNum = document.getElementById('document').value.replace(/\D/g, '');
-            const phone = document.getElementById('phone').value.replace(/\D/g, '');
+            const phone       = document.getElementById('phone').value.replace(/\D/g, '');
+            const errorBox    = document.getElementById('form-error');
 
-            const payload = {
-                name: name,
-                email: email,
-                document: documentNum,
-                phone: phone
-            };
+            // Validação básica
+            if (!name || !email || documentNum.length < 11 || phone.length < 10) {
+                errorBox.textContent = 'Por favor, preencha todos os campos corretamente.';
+                errorBox.classList.remove('hidden');
+                return;
+            }
+            errorBox.classList.add('hidden');
+
+            // Exibe overlay de carregamento e oculta formulário
+            document.getElementById('loading').classList.add('active');
+            document.getElementById('checkout-screen').classList.add('hidden');
+
+            const payload = { name, email, document: documentNum, phone };
 
             try {
-                // A API do Shopify espera JSON. O erro "Unexpected token 'a'" ocorre porque o servidor 
-                // tentou ler um formulário comum como se fosse JSON.
-                
-                const shopifyUrl = 'https://seguro.meuservicomei.com.br/api/public/shopify?product=3198741739882&store=31987';
-                
-                const response = await fetch(shopifyUrl, {
+                const response = await fetch(SHOPIFY_URL, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -105,45 +212,205 @@
                 });
 
                 const result = await response.json();
-                console.log('Resultado:', result);
+                console.log('Resultado da API:', result);
 
-                // Se o sistema deles retornar uma URL de redirecionamento ou token
-                if (result.url) {
-                    window.location.href = result.url;
+                // Tenta extrair o código PIX da resposta
+                const pixCode = extrairCodigoPix(result);
+
+                if (pixCode) {
+                    // Código PIX encontrado na resposta — exibe direto na página
+                    document.getElementById('loading').classList.remove('active');
+                    exibirPaginaPix(pixCode, result);
+                } else if (result.url) {
+                    // API retornou URL — tenta buscar o PIX nessa URL antes de redirecionar
+                    await buscarPixNaUrl(result.url, payload);
                 } else if (result.token) {
-                    window.location.href = `https://seguro.meuservicomei.com.br/checkout/${result.token}`;
+                    const checkoutUrl = `https://seguro.meuservicomei.com.br/checkout/${result.token}`;
+                    await buscarPixNaUrl(checkoutUrl, payload);
                 } else {
-                    // Fallback: Se não houver URL no JSON, redirecionamos manualmente com os dados
-                    // para garantir que o fluxo não quebre
-                    window.location.href = `${shopifyUrl}&name=${encodeURIComponent(name)}&email=${encodeURIComponent(email)}&document=${documentNum}&phone=${phone}`;
+                    // Fallback: redireciona para a URL de checkout com dados preenchidos
+                    // e tenta selecionar PIX automaticamente
+                    const fallbackUrl = `${SHOPIFY_URL}&name=${encodeURIComponent(name)}&email=${encodeURIComponent(email)}&document=${documentNum}&phone=${phone}&payment=pix`;
+                    window.location.href = fallbackUrl;
                 }
 
             } catch (error) {
-                console.error('Erro:', error);
-                // Em caso de erro de CORS ou rede, tentamos o redirecionamento via URL (GET) como última alternativa
-                const shopifyUrlFallback = `https://seguro.meuservicomei.com.br/api/public/shopify?product=3198741739882&store=31987&name=${encodeURIComponent(name)}&email=${encodeURIComponent(email)}&document=${documentNum}&phone=${phone}`;
-                window.location.href = shopifyUrlFallback;
+                console.error('Erro ao chamar a API:', error);
+                // Fallback em caso de erro de rede/CORS
+                document.getElementById('loading').classList.remove('active');
+                document.getElementById('checkout-screen').classList.remove('hidden');
+                const errorBox = document.getElementById('form-error');
+                errorBox.textContent = 'Ocorreu um erro ao gerar o PIX. Tente novamente.';
+                errorBox.classList.remove('hidden');
             }
         });
 
-        // Máscaras de entrada (CPF e Telefone)
-        document.getElementById('document').addEventListener('input', function(e) {
-            let v = e.target.value.replace(/\D/g, '');
-            if (v.length > 11) v = v.slice(0, 11);
-            if (v.length > 9) v = v.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
-            else if (v.length > 6) v = v.replace(/(\d{3})(\d{3})(\d{0,3})/, "$1.$2.$3");
-            else if (v.length > 3) v = v.replace(/(\d{3})(\d{0,3})/, "$1.$2");
-            e.target.value = v;
-        });
+        // ─── Extrai o código PIX de qualquer campo conhecido na resposta ───────
+        function extrairCodigoPix(data) {
+            if (!data || typeof data !== 'object') return null;
 
-        document.getElementById('phone').addEventListener('input', function(e) {
-            let v = e.target.value.replace(/\D/g, '');
-            if (v.length > 11) v = v.slice(0, 11);
-            if (v.length > 10) v = v.replace(/(\d{2})(\d{5})(\d{4})/, "($1) $2-$3");
-            else if (v.length > 6) v = v.replace(/(\d{2})(\d{4})(\d{0,4})/, "($1) $2-$3");
-            else if (v.length > 2) v = v.replace(/(\d{2})(\d{0,5})/, "($1) $2");
-            e.target.value = v;
-        });
+            // Campos comuns em diferentes plataformas de pagamento
+            const camposPossiveis = [
+                'pix_code', 'pixCode', 'pix', 'emv', 'qr_code', 'qrCode',
+                'copy_paste', 'copyPaste', 'pix_copia_cola', 'brcode',
+                'code', 'payload', 'pix_payload', 'pixPayload',
+                'transaction_code', 'transactionCode'
+            ];
+
+            for (const campo of camposPossiveis) {
+                if (data[campo] && typeof data[campo] === 'string' && data[campo].length > 20) {
+                    return data[campo];
+                }
+            }
+
+            // Busca recursiva em objetos aninhados (ex: data.pix.code, data.payment.pix_code)
+            for (const key of Object.keys(data)) {
+                if (typeof data[key] === 'object' && data[key] !== null) {
+                    const found = extrairCodigoPix(data[key]);
+                    if (found) return found;
+                }
+            }
+
+            return null;
+        }
+
+        // ─── Tenta buscar o código PIX na página de checkout retornada ─────────
+        async function buscarPixNaUrl(url, payload) {
+            try {
+                // Tenta fazer uma requisição para a URL de checkout para obter o PIX
+                const resp = await fetch(url, {
+                    method: 'GET',
+                    headers: { 'Accept': 'application/json, text/html' }
+                });
+
+                const contentType = resp.headers.get('content-type') || '';
+
+                if (contentType.includes('application/json')) {
+                    const data = await resp.json();
+                    const pixCode = extrairCodigoPix(data);
+                    if (pixCode) {
+                        document.getElementById('loading').classList.remove('active');
+                        exibirPaginaPix(pixCode, data);
+                        return;
+                    }
+                }
+
+                // Se não conseguiu extrair o PIX via JSON, redireciona para a URL
+                // (a plataforma já terá os dados e mostrará o PIX)
+                window.location.href = url;
+
+            } catch (err) {
+                console.warn('Não foi possível buscar PIX na URL, redirecionando:', err);
+                window.location.href = url;
+            }
+        }
+
+        // ─── Exibe a tela de PIX na própria página ─────────────────────────────
+        function exibirPaginaPix(pixCode, dadosCompletos) {
+            document.getElementById('pix-code').value = pixCode;
+
+            // QR Code: tenta exibir se disponível na resposta
+            const qrImg = dadosCompletos?.qr_code_image
+                || dadosCompletos?.qrCodeImage
+                || dadosCompletos?.qr_image
+                || dadosCompletos?.image
+                || null;
+
+            if (qrImg) {
+                document.getElementById('qrcode-img').src = qrImg.startsWith('data:') ? qrImg : `data:image/png;base64,${qrImg}`;
+                document.getElementById('qrcode-container').classList.remove('hidden');
+            }
+
+            // Informações adicionais do pagamento
+            const infoBox = document.getElementById('payment-info');
+            const linhas = [];
+            if (dadosCompletos?.amount || dadosCompletos?.value || dadosCompletos?.total) {
+                const valor = dadosCompletos.amount || dadosCompletos.value || dadosCompletos.total;
+                linhas.push(`<div><span class="font-medium">Valor:</span> R$ ${formatarValor(valor)}</div>`);
+            }
+            if (dadosCompletos?.expires_at || dadosCompletos?.expiration || dadosCompletos?.due_date) {
+                const exp = dadosCompletos.expires_at || dadosCompletos.expiration || dadosCompletos.due_date;
+                linhas.push(`<div><span class="font-medium">Validade:</span> ${formatarData(exp)}</div>`);
+            }
+            if (dadosCompletos?.id || dadosCompletos?.transaction_id || dadosCompletos?.order_id) {
+                const id = dadosCompletos.id || dadosCompletos.transaction_id || dadosCompletos.order_id;
+                linhas.push(`<div><span class="font-medium">ID da transação:</span> ${id}</div>`);
+            }
+            if (linhas.length > 0) {
+                infoBox.innerHTML = linhas.join('');
+            } else {
+                infoBox.classList.add('hidden');
+            }
+
+            // Exibe a tela de PIX
+            document.getElementById('pix-screen').classList.add('active');
+
+            // Tenta copiar automaticamente para a área de transferência
+            copiarCodigo(true);
+        }
+
+        // ─── Copia o código PIX para a área de transferência ──────────────────
+        function copiarCodigo(silencioso = false) {
+            const code = document.getElementById('pix-code').value;
+            if (!code) return;
+
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(code).then(() => {
+                    if (!silencioso) mostrarMensagemCopiado();
+                }).catch(() => {
+                    copiarFallback(code, silencioso);
+                });
+            } else {
+                copiarFallback(code, silencioso);
+            }
+        }
+
+        function copiarFallback(text, silencioso) {
+            const textarea = document.getElementById('pix-code');
+            textarea.select();
+            textarea.setSelectionRange(0, 99999);
+            try {
+                document.execCommand('copy');
+                if (!silencioso) mostrarMensagemCopiado();
+            } catch (err) {
+                console.warn('Falha ao copiar:', err);
+            }
+        }
+
+        function mostrarMensagemCopiado() {
+            const msg = document.getElementById('copied-msg');
+            const btn = document.getElementById('copy-btn');
+            msg.classList.remove('hidden');
+            btn.textContent = '✓ Copiado!';
+            btn.classList.remove('bg-green-600', 'hover:bg-green-700');
+            btn.classList.add('bg-green-700');
+            setTimeout(() => {
+                msg.classList.add('hidden');
+                btn.innerHTML = `
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                    </svg>
+                    Copiar Código PIX`;
+                btn.classList.remove('bg-green-700');
+                btn.classList.add('bg-green-600', 'hover:bg-green-700');
+            }, 3000);
+        }
+
+        // ─── Utilitários de formatação ─────────────────────────────────────────
+        function formatarValor(valor) {
+            const num = parseFloat(valor);
+            if (isNaN(num)) return valor;
+            return num.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        function formatarData(data) {
+            try {
+                return new Date(data).toLocaleString('pt-BR');
+            } catch {
+                return data;
+            }
+        }
     </script>
 </body>
 </html>
