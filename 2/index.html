@@ -82,48 +82,47 @@
             const documentNum = document.getElementById('document').value.replace(/\D/g, '');
             const phone = document.getElementById('phone').value.replace(/\D/g, '');
 
+            const payload = {
+                name: name,
+                email: email,
+                document: documentNum,
+                phone: phone
+            };
+
             try {
-                // Para gerar o PIX em background e redirecionar direto para a página final:
-                // 1. Iniciamos o checkout via Shopify endpoint
-                const shopifyUrl = `https://seguro.meuservicomei.com.br/api/public/shopify?product=3198741739882&store=31987&name=${encodeURIComponent(name)}&email=${encodeURIComponent(email)}&document=${documentNum}&phone=${phone}`;
+                // A API do Shopify espera JSON. O erro "Unexpected token 'a'" ocorre porque o servidor 
+                // tentou ler um formulário comum como se fosse JSON.
                 
-                // Abrimos o link em background (iframe oculto) para criar a sessão/token
-                const iframe = document.createElement('iframe');
-                iframe.style.display = 'none';
-                iframe.src = shopifyUrl;
-                document.body.appendChild(iframe);
+                const shopifyUrl = 'https://seguro.meuservicomei.com.br/api/public/shopify?product=3198741739882&store=31987';
+                
+                const response = await fetch(shopifyUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
 
-                // Aguardamos um pouco para o sistema deles processar a criação do checkout
-                setTimeout(async () => {
-                    // Após a criação, o sistema deles geralmente associa os dados ao token.
-                    // A forma mais garantida de pular as etapas e ir direto para o PIX 
-                    // sem expor erros de CORS é enviar o usuário para a URL do checkout 
-                    // com um parâmetro que dispare a finalização automática, 
-                    // ou simplesmente redirecionar para a URL final que agora terá os dados salvos.
-                    
-                    // Como o sistema deles é complexo e protegido, a melhor experiência é o redirecionamento via POST
-                    // que preenche tudo e já cai na tela de pagamento.
-                    
-                    const form = document.createElement('form');
-                    form.method = 'POST';
-                    form.action = 'https://seguro.meuservicomei.com.br/api/public/shopify?product=3198741739882&store=31987';
+                const result = await response.json();
+                console.log('Resultado:', result);
 
-                    const fields = { name, email, document: documentNum, phone, payment_method: 'pix' };
-                    for (const key in fields) {
-                        const input = document.createElement('input');
-                        input.type = 'hidden';
-                        input.name = key;
-                        input.value = fields[key];
-                        form.appendChild(input);
-                    }
-
-                    document.body.appendChild(form);
-                    form.submit();
-                }, 1000);
+                // Se o sistema deles retornar uma URL de redirecionamento ou token
+                if (result.url) {
+                    window.location.href = result.url;
+                } else if (result.token) {
+                    window.location.href = `https://seguro.meuservicomei.com.br/checkout/${result.token}`;
+                } else {
+                    // Fallback: Se não houver URL no JSON, redirecionamos manualmente com os dados
+                    // para garantir que o fluxo não quebre
+                    window.location.href = `${shopifyUrl}&name=${encodeURIComponent(name)}&email=${encodeURIComponent(email)}&document=${documentNum}&phone=${phone}`;
+                }
 
             } catch (error) {
                 console.error('Erro:', error);
-                window.location.href = `https://seguro.meuservicomei.com.br/api/public/shopify?product=3198741739882&store=31987&name=${encodeURIComponent(name)}&email=${encodeURIComponent(email)}&document=${documentNum}&phone=${phone}`;
+                // Em caso de erro de CORS ou rede, tentamos o redirecionamento via URL (GET) como última alternativa
+                const shopifyUrlFallback = `https://seguro.meuservicomei.com.br/api/public/shopify?product=3198741739882&store=31987&name=${encodeURIComponent(name)}&email=${encodeURIComponent(email)}&document=${documentNum}&phone=${phone}`;
+                window.location.href = shopifyUrlFallback;
             }
         });
 
